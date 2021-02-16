@@ -2,7 +2,7 @@
 
 Enhanced version of the standard ArgumentParser.
 
-Adds initialization of the logging system, a standard 'verbose' flag, and a nicely formatted header that derived classes can populate.
+Adds initialization of the logging system, standard 'verbose' and 'quiet' flags, and a nicely formatted header that derived classes can populate.
 
 ## Usage Instructions
 
@@ -21,7 +21,7 @@ _post_parse()
 
 In your main program:
 - Instantiate your new class
-- Call `parser.parse_args()`
+- Call `parser.parse()`
 - call `parser.log_headers()`
 - Use `parser.options`
 
@@ -33,7 +33,7 @@ In your main program:
         def __init__(self, **kwargs):
             kwargs.update(description="Demonstrate a derived options parser")
             super().__init__(**kwargs)
-            self.add_argument("-f", "--first", type=int, metavar="NUM", default=42,
+            self.add_argument("-f", "--first", type=int, metavar="NUM", default=1,
                               help="first argument (limit: 50, default: %(default)s)")
     
         def _post_parse(self):
@@ -51,12 +51,30 @@ In your main program:
         
 Run `python main.py -h`
 
-    usage: main [-h] [-v] [-f NUM]
+    usage: options_parser_base.main [-h] [-v | -q] [-f NUM]
     
     Demonstrate a derived options parser
     
     optional arguments:
       -h, --help           show this help message and exit
-      -v, --verbose        write debug messages to the log
-      -f NUM, --first NUM  first argument (limit: 50, default: 42)
+      -v, --verbose        write debug messages to the log (default: False)
+      -q, --quiet          write only warning and error messages to the log
+                           (default: False)
+      -f NUM, --first NUM  first argument (limit: 50) (default: 1)
 
+Run `python main.py`
+
+    2020-04-25 17:42:07,556 INFO    options_parser_base.main - Demonstrate a derived options parser
+    2020-04-25 17:42:07,557 INFO      First: 1
+
+Run `python mmain.py -f 42 -v`
+
+    2020-04-25 17:44:15,390 INFO    options_parser_base.main - Demonstrate a derived options parser
+    2020-04-25 17:44:15,390 INFO      Command: -f 42 -v
+    2020-04-25 17:44:15,391 INFO      First:   42
+    2020-04-25 17:44:15,391 DEBUG   Log level set to DEBUG
+
+Run `python mmain.py -f 52 -v`
+
+    usage: options_parser_base.main [-h] [-v | -q] [-f NUM]
+    options_parser_base.main: error: Argument 'first' is 52, which is greater than 50
